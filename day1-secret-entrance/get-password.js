@@ -7,8 +7,7 @@ L55
 L1
 L99
 R14
-L82
-…`;
+L82`;
 
 const getPassword = (input) => {
     let current = 50;
@@ -49,3 +48,6 @@ const getPassword_0x434C49434B = (input) => {
     });
     return hits;
 };
+
+getPassword(multilineInput);
+getPassword_0x434C49434B(multilineInput);
