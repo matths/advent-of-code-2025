@@ -1,0 +1,64 @@
+const database = `3-5
+10-14
+16-20
+12-18
+
+1
+5
+8
+11
+17
+32`;
+
+const readDatabase = (db) => {
+  const [freshRangesStr, ingredientIdsStr] = db.split('\n\n');
+  return {
+    ranges: freshRangesStr.split('\n').map(range => {
+      const [min, max] = range.split('-').map(Number);
+      return { min, max };
+    }),
+    ingredientIds: ingredientIdsStr.split('\n').map(Number)
+  };
+};
+
+const getFreshIngredientsCount = (db) => {
+  const { ranges, ingredientIds } = readDatabase(db);
+  return ingredientIds.reduce((count, id) =>
+    ranges.some(({ min, max }) => id >= min && id <= max) ? count + 1 : count, 0
+  );
+}
+
+const range = (min, max) =>
+  Array(Math.abs(max - min) + 1).fill(0).map((_, i) => min + i);
+
+const unique = arr => [...new Set(arr)];
+
+const getIngredientIdsConsideredToBeFreshCount = (db) => {
+  const { ranges } = readDatabase(db);
+  const freshIds = ranges.flatMap(({ min, max }) => range(min, max));
+  return unique(freshIds).length; // .sort((a, b) => a - b)
+}; // Uncaught RangeError: Invalid array length
+
+const getIngredientIdsConsideredToBeFreshCount2ndTry = (db) => {
+  const { ranges } = readDatabase(db);
+  const fixedRanges = ranges
+    .map(({ min, max }) => ({
+      min: Math.max(max, min) ? min : max,
+      max: Math.max(max, min) ? max : min
+    }))
+    .sort((a, b) => a.min - b.min);
+  const mergedRanges = fixedRanges.reduce((acc, curr) => {
+    if (acc.length === 0) return [curr];
+    const lastRange = acc[acc.length - 1];
+    if (curr.min <= lastRange.max) {
+      lastRange.max = Math.max(lastRange.max, curr.max);
+    } else {
+      acc.push(curr);
+    }
+    return acc;
+  }, []);
+  return mergedRanges.reduce((sum, { min, max }) => sum + (max - min + 1), 0);
+};
+
+getFreshIngredientsCount(database);
+getIngredientIdsConsideredToBeFreshCount2ndTry(database);
